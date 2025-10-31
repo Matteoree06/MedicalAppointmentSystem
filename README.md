@@ -54,8 +54,8 @@ DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
 DB_PORT=3306
 DB_DATABASE=citas_medicas
-DB_USERNAME=root
-DB_PASSWORD=
+DB_USERNAME=jairo2002
+DB_PASSWORD=1234ab
 ```
 
 ## **4. Generar la clave de aplicación**
