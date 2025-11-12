@@ -8,19 +8,37 @@ class StoreUsuarioRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true; // Permitir acceso
+        return true; 
     }
 
     public function rules(): array
     {
+     
+        $userId = $this->route('id');
+
+       
+        if ($this->isMethod('post')) {
+            $emailRule = 'required|email|unique:users,email';
+        } else {
+            $emailRule = 'required|email|unique:users,email,' . $userId;
+        }
+
+        
+        if ($this->isMethod('post')) {
+            $passwordRule = 'required|string|min:6';
+        } else {
+            $passwordRule = 'nullable|string|min:6';
+        }
+
         return [
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|string|min:6',
+            'email' => $emailRule,
+            'password' => $passwordRule,
+
             'telefono' => 'nullable|string|max:20',
             'direccion' => 'nullable|string',
-            'fecha_nacimiento' => 'required|date|before:today', // Debe ser una fecha del pasado
-            'sexo' => 'required|in:Masculino,Femenino,Otro', // Requerido para sistema médico
+            'fecha_nacimiento' => 'required|date|before:today',
+            'sexo' => 'required|in:Masculino,Femenino,Otro',
             'numero_seguro' => 'nullable|string|max:50',
             'historial_medico' => 'nullable|string',
             'contacto_emergencia' => 'required|string|max:255',
