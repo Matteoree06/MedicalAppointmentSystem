@@ -19,8 +19,8 @@ class StoreUsuarioRequest extends FormRequest
             'password' => 'required|string|min:6',
             'telefono' => 'nullable|string|max:20',
             'direccion' => 'nullable|string',
-            'fecha_nacimiento' => 'required|date',
-            'sexo' => 'nullable|in:Masculino,Femenino,Otro',
+            'fecha_nacimiento' => 'required|date|before:today', // Debe ser una fecha del pasado
+            'sexo' => 'required|in:Masculino,Femenino,Otro', // Requerido para sistema médico
             'numero_seguro' => 'nullable|string|max:50',
             'historial_medico' => 'nullable|string',
             'contacto_emergencia' => 'required|string|max:255',
@@ -39,6 +39,11 @@ class StoreUsuarioRequest extends FormRequest
             'email.unique' => 'El correo electrónico ya está registrado.',
             'password.required' => 'La contraseña es obligatoria.',
             'password.min' => 'La contraseña debe tener al menos 6 caracteres.',
+            'fecha_nacimiento.required' => 'La fecha de nacimiento es obligatoria.',
+            'fecha_nacimiento.before' => 'La fecha de nacimiento debe ser anterior a hoy.',
+            'sexo.required' => 'El sexo es obligatorio.',
+            'sexo.in' => 'El sexo debe ser Masculino, Femenino u Otro.',
+            'contacto_emergencia.required' => 'El contacto de emergencia es obligatorio.',
         ];
     }
 }
