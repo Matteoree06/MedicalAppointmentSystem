@@ -9,36 +9,43 @@ use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
-    // Registro
-public function register(Request $request)
-{
-    $request->validate([
-        'name' => 'required|string|max:255',
-        'email' => 'required|string|email|unique:users',
-        'password' => 'required|string|min:6|confirmed',
-        'fecha_nacimiento' => 'required|date',
-        'contacto_emergencia' => 'required|string|max:255', // ✅ Agregado
-    ]);
+    // -----------------------------------------
+    // Registro de Usuario
+    // -----------------------------------------
+    public function register(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|unique:users',
+            'password' => 'required|string|min:6|confirmed',
+            'fecha_nacimiento' => 'required|date',
+            'contacto_emergencia' => 'required|string|max:255',
+            'perfil' => 'required|string|in:admin,editor,usuario', //  Requisito del proyecto
+        ]);
 
-    $user = User::create([
-        'name' => $request->name,
-        'email' => $request->email,
-        'password' => bcrypt($request->password),
-        'fecha_nacimiento' => $request->fecha_nacimiento,
-        'contacto_emergencia' => $request->contacto_emergencia, // ✅ Agregado
-    ]);
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => bcrypt($request->password),
+            'fecha_nacimiento' => $request->fecha_nacimiento,
+            'contacto_emergencia' => $request->contacto_emergencia,
+            'perfil' => $request->perfil, //  Requisito del sistema
+        ]);
 
-    $token = $user->createToken('auth_token')->plainTextToken;
+        $token = $user->createToken('auth_token')->plainTextToken;
 
-    return response()->json([
-        'user' => $user,
-        'token' => $token,
-    ], 201);
-}
+        return response()->json([
+            'message' => 'Usuario registrado correctamente',
+            'user' => $user,
+            'token' => $token,
+        ], 201);
+    }
 
 
 
+    // -----------------------------------------
     // Login
+    // -----------------------------------------
     public function login(Request $request)
     {
         $credentials = $request->validate([
@@ -54,28 +61,42 @@ public function register(Request $request)
 
         $user = Auth::user();
 
-        // opcional: eliminar tokens anteriores si quieres single-session
+        // Opcional: borrar tokens anteriores (single session)
         // $user->tokens()->delete();
 
         $token = $user->createToken('api_token')->plainTextToken;
 
         return response()->json([
+            'message' => 'Inicio de sesión exitoso',
             'user' => $user,
             'token' => $token,
         ]);
     }
 
-    // Logout (revocar token actual)
+
+
+    // -----------------------------------------
+    // Logout (revoca el token actual)
+    // -----------------------------------------
     public function logout(Request $request)
     {
-        // Borra sólo el token usado en esta petición:
         $request->user()->currentAccessToken()->delete();
 
-        // O para cerrar todas las sesiones del usuario:
-        // $request->user()->tokens()->delete();
-
-        return response()->json(['message' => 'Sesión cerrada.']);
+        return response()->json([
+            'message' => 'Sesión cerrada correctamente',
+        ]);
     }
 
-    
+
+
+    // -----------------------------------------
+    // Información del usuario autenticado
+    // -----------------------------------------
+    public function userData(Request $request)
+    {
+        return response()->json([
+            'user' => $request->user(),
+            'perfil' => $request->user()->perfil, // muestra el rol/perfil
+        ]);
+    }
 }

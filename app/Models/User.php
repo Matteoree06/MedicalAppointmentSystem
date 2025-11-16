@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -11,14 +10,10 @@ use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable;
 
-    use HasApiTokens, Notifiable;
     /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
+     * Campos asignables
      */
     protected $fillable = [
         'name',
@@ -34,12 +29,11 @@ class User extends Authenticatable
         'tipo_sangre',
         'alergias',
         'activo',
+        'perfil',       // AGREGADO — requerido por la mini tarea
     ];
 
     /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
+     * Campos ocultos
      */
     protected $hidden = [
         'password',
@@ -47,9 +41,7 @@ class User extends Authenticatable
     ];
 
     /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
+     * Casts de atributos
      */
     protected function casts(): array
     {
@@ -62,15 +54,17 @@ class User extends Authenticatable
     }
 
     /**
-     * Accessor para calcular la edad del paciente
+     * Accesor: calcular edad
      */
     public function getEdadAttribute()
     {
-        return $this->fecha_nacimiento ? Carbon::parse($this->fecha_nacimiento)->diffInYears(Carbon::now()) : null;
+        return $this->fecha_nacimiento
+            ? Carbon::parse($this->fecha_nacimiento)->diffInYears(Carbon::now())
+            : null;
     }
 
     /**
-     * Scope para obtener solo usuarios activos
+     * Scope: usuarios activos
      */
     public function scopeActivos($query)
     {
@@ -78,7 +72,7 @@ class User extends Authenticatable
     }
 
     /**
-     * Relación con citas médicas
+     * Relación con citas
      */
     public function citas()
     {
