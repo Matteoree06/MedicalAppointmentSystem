@@ -25,12 +25,21 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
 
     // CRUD de citas
-    Route::get('/appointments', [AppointmentController::class, 'index']);
-    Route::post('/appointments', [AppointmentController::class, 'store']);
-    Route::get('/appointments/{id}', [AppointmentController::class, 'show']);
-    Route::put('/appointments/{id}', [AppointmentController::class, 'update']);
-    Route::delete('/appointments/{id}', [AppointmentController::class, 'destroy']);
+    // Route::get('/appointments', [AppointmentController::class, 'index']);
+    // Route::post('/appointments', [AppointmentController::class, 'store']);
+    // Route::get('/appointments/{id}', [AppointmentController::class, 'show']);
+    // Route::put('/appointments/{id}', [AppointmentController::class, 'update']);
+    // Route::delete('/appointments/{id}', [AppointmentController::class, 'destroy']);
 
     // Usuarios (solo accesible por perfiles especiales, si se requiere)
     Route::get('/users', [UserController::class, 'index']);
+
+Route::prefix('users')->group(function () {
+    Route::get('/index', [UserController::class, 'index'])->name('users.index'); 
+    Route::post('/', [UserController::class, 'store'])->name('users.store');       
+    Route::get('/show/{id}', [UserController::class, 'show'])->name('users.show');         
+    Route::put('/{id}', [UserController::class, 'update'])->name('users.update');   
+    Route::delete('/{id}', [UserController::class, 'destroy'])->name('users.delete'); 
+});
+
 });
