@@ -6,22 +6,16 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use Illuminate\Validation\ValidationException;
+use App\Http\Requests\Auth\RegisterRequest;
+use App\Http\Requests\Auth\LoginRequest;
 
 class AuthController extends Controller
 {
     // -----------------------------------------
     // Registro de Usuario
     // -----------------------------------------
-    public function register(Request $request)
+    public function register(RegisterRequest $request)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|unique:users',
-            'password' => 'required|string|min:6|confirmed',
-            'fecha_nacimiento' => 'required|date',
-            'contacto_emergencia' => 'required|string|max:255',
-            'perfil' => 'required|string|in:admin,editor,usuario', //  Requisito del proyecto
-        ]);
 
         $user = User::create([
             'name' => $request->name,
@@ -46,12 +40,9 @@ class AuthController extends Controller
     // -----------------------------------------
     // Login
     // -----------------------------------------
-    public function login(Request $request)
+    public function login(LoginRequest $request)
     {
-        $credentials = $request->validate([
-            'email' => 'required|email',
-            'password' => 'required|string',
-        ]);
+        $credentials = $request->validated();
 
         if (!Auth::attempt($credentials)) {
             throw ValidationException::withMessages([
@@ -98,5 +89,28 @@ class AuthController extends Controller
             'user' => $request->user(),
             'perfil' => $request->user()->perfil, // muestra el rol/perfil
         ]);
+    }
+
+
+
+    // -----------------------------------------
+    // Validar token - Verificar si el token es válido
+    // -----------------------------------------
+    public function validateToken(Request $request)
+    {
+        $user = $request->user();
+        
+        return response()->json([
+            'valid' => true,
+            'message' => 'Token válido',
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'perfil' => $user->perfil,
+                'fecha_nacimiento' => $user->fecha_nacimiento,
+                'contacto_emergencia' => $user->contacto_emergencia,
+            ]
+        ], 200);
     }
 }
