@@ -5,12 +5,14 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AppointmentController;
+use Laravel\Sanctum\Sanctum;
 
 // ------------------------------
 // Rutas públicas (no requieren token)
 // ------------------------------
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
+Route::get('/validate-token', [AuthController::class, 'validateToken'])->middleware('auth:sanctum');
 
 
 // ------------------------------
@@ -34,12 +36,12 @@ Route::middleware('auth:sanctum')->group(function () {
     // Usuarios (solo accesible por perfiles especiales, si se requiere)
     Route::get('/users', [UserController::class, 'index']);
 
-Route::prefix('users')->group(function () {
-    Route::get('/index', [UserController::class, 'index'])->name('users.index'); 
-    Route::post('/', [UserController::class, 'store'])->name('users.store');       
-    Route::get('/show/{id}', [UserController::class, 'show'])->name('users.show');         
-    Route::put('/{id}', [UserController::class, 'update'])->name('users.update');   
-    Route::delete('/{id}', [UserController::class, 'destroy'])->name('users.delete'); 
-});
+    Route::prefix('users')->group(function () {
+        Route::get('/index', [UserController::class, 'index'])->name('users.index'); 
+        Route::post('/', [UserController::class, 'store'])->name('users.store');       
+        Route::get('/show/{id}', [UserController::class, 'show'])->name('users.show');         
+        Route::put('/{id}', [UserController::class, 'update'])->name('users.update');   
+        Route::delete('/{id}', [UserController::class, 'destroy'])->name('users.delete'); 
+    });
 
 });
