@@ -4,6 +4,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\PacienteController;
+use App\Http\Controllers\MedicoController;
 use App\Http\Controllers\AppointmentController;
 use Laravel\Sanctum\Sanctum;
 
@@ -44,4 +46,36 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('/{id}', [UserController::class, 'destroy'])->name('users.delete'); 
     });
 
+    // ==========================================
+    // RUTAS CRUD TRADICIONALES ADICIONALES
+    // ==========================================
+    
+    // Pacientes CRUD
+    Route::apiResource('pacientes', PacienteController::class);
+    
+    // Médicos CRUD
+    Route::apiResource('medicos', MedicoController::class);
+
+});
+
+// ==========================================
+// RUTAS JSON-LD (PÚBLICAS PARA DEMOSTRACIÓN)
+// ==========================================
+
+Route::prefix('jsonld')->group(function () {
+    
+    // Users/Pacientes JSON-LD
+    Route::get('/users', [UserController::class, 'indexJsonLd']);
+    Route::get('/users/{id}', [UserController::class, 'showJsonLd']);
+    
+    // Pacientes JSON-LD
+    Route::get('/pacientes', [PacienteController::class, 'indexJsonLd']);
+    Route::get('/pacientes/{id}', [PacienteController::class, 'showJsonLd']);
+    Route::get('/pacientes/{id}/citas', [PacienteController::class, 'citasJsonLd']);
+    
+    // Médicos JSON-LD
+    Route::get('/medicos', [MedicoController::class, 'indexJsonLd']);
+    Route::get('/medicos/{id}', [MedicoController::class, 'showJsonLd']);
+    Route::get('/medicos/{id}/citas', [MedicoController::class, 'citasJsonLd']);
+    Route::get('/medicos/especialidad/{especialidadId}', [MedicoController::class, 'porEspecialidadJsonLd']);
 });
