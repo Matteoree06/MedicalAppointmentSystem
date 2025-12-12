@@ -7,6 +7,9 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\PacienteController;
 use App\Http\Controllers\MedicoController;
 use App\Http\Controllers\AppointmentController;
+use App\Http\Controllers\EspecialidadController;
+use App\Http\Controllers\ConsultorioController;
+use App\Http\Controllers\CitaController;
 use Laravel\Sanctum\Sanctum;
 
 // ------------------------------
@@ -28,13 +31,6 @@ Route::middleware('auth:sanctum')->group(function () {
     // Cerrar sesión
     Route::post('/logout', [AuthController::class, 'logout']);
 
-    // CRUD de citas
-    // Route::get('/appointments', [AppointmentController::class, 'index']);
-    // Route::post('/appointments', [AppointmentController::class, 'store']);
-    // Route::get('/appointments/{id}', [AppointmentController::class, 'show']);
-    // Route::put('/appointments/{id}', [AppointmentController::class, 'update']);
-    // Route::delete('/appointments/{id}', [AppointmentController::class, 'destroy']);
-
     // Usuarios (solo accesible por perfiles especiales, si se requiere)
     Route::get('/users', [UserController::class, 'index']);
 
@@ -55,6 +51,15 @@ Route::middleware('auth:sanctum')->group(function () {
     
     // Médicos CRUD
     Route::apiResource('medicos', MedicoController::class);
+
+    //Especialidad CRUD
+    Route::apiResource('especialidades', EspecialidadController::class);
+
+    //Consultorio CRUD
+    Route::apiResource('consultorios', ConsultorioController::class);
+
+    //Cita CRUD
+    Route::apiResource('citas', CitaController::class);
 
 });
 
@@ -78,4 +83,16 @@ Route::prefix('jsonld')->group(function () {
     Route::get('/medicos/{id}', [MedicoController::class, 'showJsonLd']);
     Route::get('/medicos/{id}/citas', [MedicoController::class, 'citasJsonLd']);
     Route::get('/medicos/especialidad/{especialidadId}', [MedicoController::class, 'porEspecialidadJsonLd']);
+
+    //Especialidad JSON-LD
+    Route::get('/especialidades', [EspecialidadController::class, 'indexJsonLd']);
+    Route::get('/especialidades/{id}', [EspecialidadController::class, 'showJsonLd']);
+
+    //Consultorio JSON-LD
+    Route::get('/consultorios', [ConsultorioController::class, 'indexJsonLd']);
+    Route::get('/consultorios/{id}', [ConsultorioController::class, 'showJsonLd']);
+
+    //Cita JSON-LD
+    Route::get('/citas', [CitaController::class, 'indexJsonLd']);
+    Route::get('/citas/{id}', [CitaController::class, 'showJsonLd']);
 });
