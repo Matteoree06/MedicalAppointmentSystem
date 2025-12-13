@@ -1,5 +1,8 @@
 <?php
 
+use App\Http\Controllers\HistorialMedicoController;
+use App\Http\Controllers\PagoCitaController;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -32,6 +35,9 @@ Route::get('/validate-token', [AuthController::class, 'validateToken'])->middlew
 // Rutas protegidas con Sanctum
 // ------------------------------
 Route::middleware('auth:sanctum')->group(function () {
+    Route::apiResource('pagos-citas', PagoCitaController::class);
+
+
 
     // Información del usuario autenticado
     Route::get('/user', [AuthController::class, 'userData']);
