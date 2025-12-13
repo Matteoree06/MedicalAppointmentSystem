@@ -1,6 +1,9 @@
 # MedicalAppointmentSystem
 Proyecto para Arquitectura de Software GRUPO 2 ESPE
 
+## INTEGRANTES
+# CARLOS BAUTISTA
+
 # MANUAL DE INSTALACIÓN, CLONACIÓN Y EJECUCIÓN DEL PROYECTO
 
 ## **1. Clonar el proyecto desde GitHub**
