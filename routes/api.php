@@ -1,15 +1,19 @@
 <?php
 
-use App\Http\Controllers\HistorialMedicoController;
-use App\Http\Controllers\PagoCitaController;
-
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-use App\Http\Controllers\UsuarioController;   // tus rutas /usuarios
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\UserController;      // rutas del equipo /users
-use App\Http\Controllers\AppointmentController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\UsuarioController;
+
+use App\Http\Controllers\PacienteController;
+use App\Http\Controllers\MedicoController;
+use App\Http\Controllers\EspecialidadController;
+use App\Http\Controllers\ConsultorioController;
+use App\Http\Controllers\CitaController;
+
+use App\Http\Controllers\PagoCitaController;
+use App\Http\Controllers\HistorialMedicoController;
 
 // ------------------------------
 // Ruta de prueba
@@ -20,7 +24,7 @@ Route::get('/test', function () {
 
 // ------------------------------
 // Tus rutas (CRUD usuarios por UsuarioController)
-// OJO: esto crea /api/usuarios
+// Crea /api/usuarios
 // ------------------------------
 Route::apiResource('usuarios', UsuarioController::class);
 
@@ -29,15 +33,15 @@ Route::apiResource('usuarios', UsuarioController::class);
 // ------------------------------
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
-Route::get('/validate-token', [AuthController::class, 'validateToken'])->middleware('auth:sanctum');
+
+// (Opcional) validar token protegido
+Route::get('/validate-token', [AuthController::class, 'validateToken'])
+    ->middleware('auth:sanctum');
 
 // ------------------------------
 // Rutas protegidas con Sanctum
 // ------------------------------
 Route::middleware('auth:sanctum')->group(function () {
-    Route::apiResource('pagos-citas', PagoCitaController::class);
-    Route::apiResource('historial-medico', HistorialMedicoController::class);
-
 
     // Información del usuario autenticado
     Route::get('/user', [AuthController::class, 'userData']);
@@ -45,14 +49,9 @@ Route::middleware('auth:sanctum')->group(function () {
     // Cerrar sesión
     Route::post('/logout', [AuthController::class, 'logout']);
 
-    // CRUD de citas (si lo van a activar luego)
-    // Route::get('/appointments', [AppointmentController::class, 'index']);
-    // Route::post('/appointments', [AppointmentController::class, 'store']);
-    // Route::get('/appointments/{id}', [AppointmentController::class, 'show']);
-    // Route::put('/appointments/{id}', [AppointmentController::class, 'update']);
-    // Route::delete('/appointments/{id}', [AppointmentController::class, 'destroy']);
+    // Users del equipo (si quieren mantener estilo custom)
+    Route::get('/users', [UserController::class, 'index']);
 
-    // Usuarios del equipo (UserController) -> /api/users/...
     Route::prefix('users')->group(function () {
         Route::get('/index', [UserController::class, 'index'])->name('users.index');
         Route::post('/', [UserController::class, 'store'])->name('users.store');
@@ -61,4 +60,55 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('/{id}', [UserController::class, 'destroy'])->name('users.delete');
     });
 
+    // CRUD tradicionales
+    Route::apiResource('pacientes', PacienteController::class);
+    Route::apiResource('medicos', MedicoController::class);
+    Route::apiResource('especialidades', EspecialidadController::class);
+    Route::apiResource('consultorios', ConsultorioController::class);
+    Route::apiResource('citas', CitaController::class);
+
+    // PARTE (Alex)
+    Route::apiResource('pagos-citas', PagoCitaController::class);
+    Route::apiResource('historial-medico', HistorialMedicoController::class);
+});
+
+// ==========================================
+// RUTAS JSON-LD (PÚBLICAS PARA DEMOSTRACIÓN)
+// ==========================================
+Route::prefix('jsonld')->group(function () {
+
+    // Pagos Cita JSON-LD
+Route::get('/pagos-citas', [PagoCitaController::class, 'indexJsonLd']);
+Route::get('/pagos-citas/{id}', [PagoCitaController::class, 'showJsonLd']);
+
+// Historial Médico JSON-LD
+Route::get('/historial-medico', [HistorialMedicoController::class, 'indexJsonLd']);
+Route::get('/historial-medico/{id}', [HistorialMedicoController::class, 'showJsonLd']);
+
+    // Users JSON-LD
+    Route::get('/users', [UserController::class, 'indexJsonLd']);
+    Route::get('/users/{id}', [UserController::class, 'showJsonLd']);
+
+    // Pacientes JSON-LD
+    Route::get('/pacientes', [PacienteController::class, 'indexJsonLd']);
+    Route::get('/pacientes/{id}', [PacienteController::class, 'showJsonLd']);
+    Route::get('/pacientes/{id}/citas', [PacienteController::class, 'citasJsonLd']);
+
+    // Médicos JSON-LD
+    Route::get('/medicos', [MedicoController::class, 'indexJsonLd']);
+    Route::get('/medicos/{id}', [MedicoController::class, 'showJsonLd']);
+    Route::get('/medicos/{id}/citas', [MedicoController::class, 'citasJsonLd']);
+    Route::get('/medicos/especialidad/{especialidadId}', [MedicoController::class, 'porEspecialidadJsonLd']);
+
+    // Especialidades JSON-LD
+    Route::get('/especialidades', [EspecialidadController::class, 'indexJsonLd']);
+    Route::get('/especialidades/{id}', [EspecialidadController::class, 'showJsonLd']);
+
+    // Consultorios JSON-LD
+    Route::get('/consultorios', [ConsultorioController::class, 'indexJsonLd']);
+    Route::get('/consultorios/{id}', [ConsultorioController::class, 'showJsonLd']);
+
+    // Citas JSON-LD
+    Route::get('/citas', [CitaController::class, 'indexJsonLd']);
+    Route::get('/citas/{id}', [CitaController::class, 'showJsonLd']);
 });

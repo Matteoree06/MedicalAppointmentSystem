@@ -7,9 +7,10 @@ use Illuminate\Http\Request;
 
 class HistorialMedicoController extends Controller
 {
-    /**
-     * LISTAR TODO EL HISTORIAL
-     */
+    // =========================
+    // CRUD NORMAL (JSON normal)
+    // =========================
+
     public function index()
     {
         return response()->json(
@@ -18,9 +19,6 @@ class HistorialMedicoController extends Controller
         );
     }
 
-    /**
-     * MOSTRAR UN REGISTRO DE HISTORIAL
-     */
     public function show($id)
     {
         $historial = HistorialMedico::with(['paciente', 'medico'])->find($id);
@@ -32,9 +30,6 @@ class HistorialMedicoController extends Controller
         return response()->json($historial, 200);
     }
 
-    /**
-     * CREAR UN NUEVO REGISTRO DE HISTORIAL
-     */
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -53,9 +48,6 @@ class HistorialMedicoController extends Controller
         ], 201);
     }
 
-    /**
-     * ACTUALIZAR UN REGISTRO DE HISTORIAL
-     */
     public function update(Request $request, $id)
     {
         $historial = HistorialMedico::find($id);
@@ -80,9 +72,6 @@ class HistorialMedicoController extends Controller
         ], 200);
     }
 
-    /**
-     * ELIMINAR UN REGISTRO DE HISTORIAL
-     */
     public function destroy($id)
     {
         $historial = HistorialMedico::find($id);
@@ -94,5 +83,71 @@ class HistorialMedicoController extends Controller
         $historial->delete();
 
         return response()->json(['message' => 'Historial eliminado correctamente'], 200);
+    }
+
+    // =========================
+    // ✅ JSON-LD (WEB SEMÁNTICA)
+    // =========================
+
+    public function indexJsonLd()
+    {
+        $items = HistorialMedico::with(['paciente', 'medico'])->get();
+
+        $jsonldData = [
+            '@context' => 'https://schema.org',
+            '@type' => 'ItemList',
+            'name' => 'Historial Médico',
+            'description' => 'Listado de registros clínicos del sistema',
+            'numberOfItems' => $items->count(),
+            'itemListElement' => $items->values()->map(function ($h, $index) {
+                return [
+                    '@type' => 'ListItem',
+                    'position' => $index + 1,
+                    'item' => $this->historialToJsonLd($h),
+                ];
+            })->toArray(),
+        ];
+
+        return response()->json($jsonldData, 200, [], JSON_PRETTY_PRINT);
+    }
+
+    public function showJsonLd($id)
+    {
+        $h = HistorialMedico::with(['paciente', 'medico'])->find($id);
+
+        if (!$h) {
+            $jsonldData = [
+                '@context' => 'https://schema.org',
+                '@type' => 'Thing',
+                'name' => 'Historial no encontrado',
+            ];
+            return response()->json($jsonldData, 404, [], JSON_PRETTY_PRINT);
+        }
+
+        return response()->json($this->historialToJsonLd($h), 200, [], JSON_PRETTY_PRINT);
+    }
+
+    private function historialToJsonLd(HistorialMedico $h): array
+    {
+        return [
+            '@type' => 'MedicalRecord',
+            '@id' => url("/api/historial-medico/{$h->id}"),
+            'identifier' => (string) $h->id,
+            'description' => $h->diagnostico,
+            'treatment' => $h->tratamiento,
+            'note' => $h->observaciones,
+
+            'patient' => $h->paciente ? [
+                '@type' => 'Person',
+                '@id' => url("/api/pacientes/{$h->paciente->id}"),
+                'name' => $h->paciente->nombre ?? null,
+            ] : null,
+
+            'provider' => $h->medico ? [
+                '@type' => 'Physician',
+                '@id' => url("/api/medicos/{$h->medico->id}"),
+                'name' => $h->medico->nombre ?? null,
+            ] : null,
+        ];
     }
 }

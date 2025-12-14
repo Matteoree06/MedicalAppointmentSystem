@@ -8,10 +8,19 @@ use Illuminate\Database\Eloquent\Model;
 class Consultorio extends Model
 {
     use HasFactory;
+
+    protected $table = 'consultorios';
+
+    protected $fillable = [
+        'nombre',
+        'ubicacion'
+    ];
+
     public function medicos()
     {
         return $this->hasMany(Medico::class);
     }
+
     public function citas()
     {
         return $this->hasMany(Cita::class);
