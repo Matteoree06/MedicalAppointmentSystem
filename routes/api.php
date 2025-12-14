@@ -49,7 +49,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // Cerrar sesión
     Route::post('/logout', [AuthController::class, 'logout']);
 
-    // Users del equipo (si quieren mantener estilo custom)
+    // Users del equipo
     Route::get('/users', [UserController::class, 'index']);
 
     Route::prefix('users')->group(function () {
@@ -78,12 +78,12 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::prefix('jsonld')->group(function () {
 
     // Pagos Cita JSON-LD
-Route::get('/pagos-citas', [PagoCitaController::class, 'indexJsonLd']);
-Route::get('/pagos-citas/{id}', [PagoCitaController::class, 'showJsonLd']);
+    Route::get('/pagos-citas', [PagoCitaController::class, 'indexJsonLd']);
+    Route::get('/pagos-citas/{id}', [PagoCitaController::class, 'showJsonLd']);
 
-// Historial Médico JSON-LD
-Route::get('/historial-medico', [HistorialMedicoController::class, 'indexJsonLd']);
-Route::get('/historial-medico/{id}', [HistorialMedicoController::class, 'showJsonLd']);
+    // Historial Médico JSON-LD
+    Route::get('/historial-medico', [HistorialMedicoController::class, 'indexJsonLd']);
+    Route::get('/historial-medico/{id}', [HistorialMedicoController::class, 'showJsonLd']);
 
     // Users JSON-LD
     Route::get('/users', [UserController::class, 'indexJsonLd']);
