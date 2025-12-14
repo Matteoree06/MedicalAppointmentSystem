@@ -11,6 +11,13 @@ class PagoCita extends Model
 
     protected $table = 'pagos_citas';
 
+    protected $fillable = [
+        'cita_id',
+        'monto',
+        'metodo_pago',
+        'estado',
+    ];
+
     public function cita()
     {
         return $this->belongsTo(Cita::class);

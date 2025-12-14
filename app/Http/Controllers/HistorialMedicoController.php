@@ -2,47 +2,97 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\HistorialMedico;
 use Illuminate\Http\Request;
 
 class HistorialMedicoController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * LISTAR TODO EL HISTORIAL
      */
     public function index()
     {
-        //
+        return response()->json(
+            HistorialMedico::with(['paciente', 'medico'])->get(),
+            200
+        );
     }
 
     /**
-     * Store a newly created resource in storage.
+     * MOSTRAR UN REGISTRO DE HISTORIAL
+     */
+    public function show($id)
+    {
+        $historial = HistorialMedico::with(['paciente', 'medico'])->find($id);
+
+        if (!$historial) {
+            return response()->json(['message' => 'Historial no encontrado'], 404);
+        }
+
+        return response()->json($historial, 200);
+    }
+
+    /**
+     * CREAR UN NUEVO REGISTRO DE HISTORIAL
      */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'paciente_id'   => 'required|exists:pacientes,id',
+            'medico_id'     => 'required|exists:medicos,id',
+            'diagnostico'   => 'required|string',
+            'tratamiento'   => 'nullable|string',
+            'observaciones' => 'nullable|string',
+        ]);
+
+        $historial = HistorialMedico::create($validated);
+
+        return response()->json([
+            'message' => 'Historial creado correctamente',
+            'data' => $historial
+        ], 201);
     }
 
     /**
-     * Display the specified resource.
+     * ACTUALIZAR UN REGISTRO DE HISTORIAL
      */
-    public function show(string $id)
+    public function update(Request $request, $id)
     {
-        //
+        $historial = HistorialMedico::find($id);
+
+        if (!$historial) {
+            return response()->json(['message' => 'Historial no encontrado'], 404);
+        }
+
+        $validated = $request->validate([
+            'paciente_id'   => 'sometimes|exists:pacientes,id',
+            'medico_id'     => 'sometimes|exists:medicos,id',
+            'diagnostico'   => 'sometimes|string',
+            'tratamiento'   => 'nullable|string',
+            'observaciones' => 'nullable|string',
+        ]);
+
+        $historial->update($validated);
+
+        return response()->json([
+            'message' => 'Historial actualizado correctamente',
+            'data' => $historial
+        ], 200);
     }
 
     /**
-     * Update the specified resource in storage.
+     * ELIMINAR UN REGISTRO DE HISTORIAL
      */
-    public function update(Request $request, string $id)
+    public function destroy($id)
     {
-        //
-    }
+        $historial = HistorialMedico::find($id);
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        if (!$historial) {
+            return response()->json(['message' => 'Historial no encontrado'], 404);
+        }
+
+        $historial->delete();
+
+        return response()->json(['message' => 'Historial eliminado correctamente'], 200);
     }
 }

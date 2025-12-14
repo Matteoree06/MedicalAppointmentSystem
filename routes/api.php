@@ -36,7 +36,7 @@ Route::get('/validate-token', [AuthController::class, 'validateToken'])->middlew
 // ------------------------------
 Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('pagos-citas', PagoCitaController::class);
-
+    Route::apiResource('historial-medico', HistorialMedicoController::class);
 
 
     // Información del usuario autenticado
