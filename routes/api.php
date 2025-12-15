@@ -18,7 +18,7 @@ use Laravel\Sanctum\Sanctum;
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::get('/validate-token', [AuthController::class, 'validateToken'])->middleware('auth:sanctum');
-
+Route::apiResource('citas', CitaController::class);
 
 // ------------------------------
 // Rutas protegidas con Sanctum
@@ -59,7 +59,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('consultorios', ConsultorioController::class);
 
     //Cita CRUD
-    Route::apiResource('citas', CitaController::class);
+    //Route::apiResource('citas', CitaController::class);
 
 });
 

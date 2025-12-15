@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 // ==========================================
 // RUTAS PRINCIPALES DEL FRONTEND
 // ==========================================
+ //Route::get('/test', fn () => 'TEST OK');
 
 // Página de inicio
 Route::get('/', function () {
@@ -20,10 +21,11 @@ Route::get('/medicos/{id}', function ($id) {
     return view('medicos.show', compact('id'));
 })->where('id', '[0-9]+');
 
-// Citas (placeholder)
-Route::get('/citas', function () {
-    return view('welcome'); // Por ahora redirige a welcome
-});
+Route::get('/citas', fn () => view('citas.index'));
+
+Route::get('/citas/{id}', fn ($id) => view('citas.show', compact('id')))
+    ->whereNumber('id');
+
 
 // Especialidades (placeholder)
 Route::get('/especialidades', function () {
