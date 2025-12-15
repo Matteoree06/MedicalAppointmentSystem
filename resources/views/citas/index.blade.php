@@ -28,23 +28,61 @@
 </div>
 
 <script>
-async function cargarCitas() {
-  const tbody = document.getElementById('tbody');
-  const alertBox = document.getElementById('alert');
+function normalizeList(payload) {
+  // Caso 1: array normal (tu /api/citas actual)
+  if (Array.isArray(payload)) return payload;
 
+  // Caso 2: { data: [...] }
+  if (payload && Array.isArray(payload.data)) return payload.data;
+
+  // Caso 3: JSON-LD ItemList { itemListElement: [ { item: {...} } ] }
+  if (payload && Array.isArray(payload.itemListElement)) {
+    return payload.itemListElement.map(x => x.item ?? x).filter(Boolean);
+  }
+
+  return [];
+}
+
+function splitFechaHora(fechaHora) {
+  if (!fechaHora || typeof fechaHora !== 'string') return { fecha: '', hora: '' };
+
+  // "YYYY-MM-DD HH:MM:SS"
+  const parts = fechaHora.split(' ');
+  const fecha = parts[0] ?? '';
+  const hora = (parts[1] ?? '').slice(0, 5); // HH:MM
+  return { fecha, hora };
+}
+
+function showAlert(type, message) {
+  const alertBox = document.getElementById('alert');
+  alertBox.className = `alert alert-${type}`;
+  alertBox.textContent = message;
+  alertBox.classList.remove('d-none');
+}
+
+function hideAlert() {
+  const alertBox = document.getElementById('alert');
   alertBox.classList.add('d-none');
   alertBox.textContent = '';
+}
+
+async function cargarCitas() {
+  const tbody = document.getElementById('tbody');
+  hideAlert();
+
   tbody.innerHTML = `<tr><td colspan="5">Cargando...</td></tr>`;
 
   try {
-    const res = await fetch('/api/citas', {
+    // cache: 'no-store' para evitar “a veces sale vacío”
+    const res = await fetch(`/api/citas?ts=${Date.now()}`, {
       headers: { 'Accept': 'application/json' },
-      credentials: 'include'
+      cache: 'no-store'
     });
 
     if (!res.ok) throw new Error('HTTP ' + res.status);
 
-    const data = await res.json();
+    const raw = await res.json();
+    const data = normalizeList(raw);
 
     if (!Array.isArray(data) || data.length === 0) {
       tbody.innerHTML = `<tr><td colspan="5">No hay citas registradas.</td></tr>`;
@@ -52,27 +90,27 @@ async function cargarCitas() {
     }
 
     tbody.innerHTML = data.map(c => {
-      const fh = c.fecha_hora ?? '';
-      const partes = fh.split(' ');
-      const fecha = partes[0] ?? '';
-      const hora = (partes[1] ?? '').slice(0,5);
+      const id = c.id ?? c.identifier ?? '';
+      const estado = c.estado ?? c.status ?? '';
+      const fh = c.fecha_hora ?? c.appointmentTime ?? '';
+      const { fecha, hora } = splitFechaHora(fh);
 
       return `
         <tr>
-          <td>${c.id ?? ''}</td>
+          <td>${id}</td>
           <td>${fecha}</td>
           <td>${hora}</td>
-          <td>${c.estado ?? ''}</td>
-          <td><a class="btn btn-sm btn-primary" href="/citas/${c.id}">Ver</a></td>
+          <td>${estado}</td>
+          <td>
+            <a class="btn btn-sm btn-primary" href="/citas/${id}">Ver</a>
+          </td>
         </tr>
       `;
     }).join('');
 
   } catch (e) {
     tbody.innerHTML = `<tr><td colspan="5">Error cargando citas</td></tr>`;
-    alertBox.className = 'alert alert-danger';
-    alertBox.textContent = 'No se pudo cargar /api/citas: ' + e.message;
-    alertBox.classList.remove('d-none');
+    showAlert('danger', 'No se pudo cargar /api/citas: ' + e.message);
   }
 }
 
