@@ -27,4 +27,12 @@ class Cita extends Model
     {
         return $this->hasOne(PagoCita::class);
     }
+    protected $fillable = [
+    'paciente_id',
+    'medico_id',
+    'consultorio_id',
+    'fecha',
+    'hora'
+];
+
 }
