@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Route;
 
 // ==========================================
@@ -25,10 +26,22 @@ Route::get('/citas', function () {
     return view('welcome'); // Por ahora redirige a welcome
 });
 
-// Especialidades (placeholder)
+// Especialidades
 Route::get('/especialidades', function () {
-    return view('welcome'); // Por ahora redirige a welcome
+    return view('especialidades.index'); 
 });
+Route::get('/especialidades/{id}', function ($id) {
+    return view('especialidades.show', compact('id'));
+})->where('id', '[0-9]+');
+
+// Consultorios
+Route::get('/consultorios', function () {
+    return view('consultorios.index');
+});
+
+Route::get('/consultorios/{id}', function ($id) {
+    return view('consultorios.show', compact('id'));
+})->where('id', '[0-9]+');
 
 // Pacientes (placeholder)
 Route::get('/pacientes', function () {
